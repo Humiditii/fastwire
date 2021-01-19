@@ -1,0 +1,25 @@
+{
+  "name": "fastwire",
+  "version": "1.0.0",
+  "description": "a restful api for setting an e commerce store from the client",
+  "main": "server.js",
+  "scripts": {
+    "test": "mocha --recursive --require babel-polyfill --require babel-register --exit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Humiditii/fastwire.git"
+  },
+  "keywords": [
+    "restapi",
+    "ecommerce",
+    "nodejs",
+    "express"
+  ],
+  "author": "Babatunde A.0",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Humiditii/fastwire/issues"
+  },
+  "homepage": "https://github.com/Humiditii/fastwire#readme"
+}
