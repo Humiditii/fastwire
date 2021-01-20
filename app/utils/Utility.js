@@ -44,8 +44,15 @@ class Utility {
 
     }
 
-    static randomStr(){
-        return randomBytes(5).toString('hex');
+    static randomStr(length){
+        return randomBytes(length).toString('hex');
+    }
+
+    static api_response(response_object){
+        return response_object.res.status(response_object.statusCode).json({
+            message: response_object.message,
+            data: response_object.data
+        })
     }
 
 }

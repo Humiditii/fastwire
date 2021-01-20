@@ -20,6 +20,7 @@ app.use(bodyParser.json());
 //allowing CORS
 app.use(cors());
 
+//app routes
 
 app.use('/welcome', (req, res, next)=> {
     return res.status(200).json({
