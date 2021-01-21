@@ -11,7 +11,7 @@ const {connect}  = db_connection
 
 let connection_config = {
     port: process.env.PORT,
-    database_url: process.env.MONGODB_ATLAS
+    database_url: process.env.MONGODB_ATLAS0
 }
 
 

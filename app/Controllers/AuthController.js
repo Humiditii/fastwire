@@ -1,5 +1,5 @@
-import Auth from '../Models/Auth';
-import Pin from '../Models/Pin';
+import Auth from '../Models/Auth.model';
+import Pin from '../Models/Pin.model';
 import Util from '../utils/Utility';
 
 const {appError, randomStr, mailer, api_response} = Util
@@ -20,7 +20,7 @@ class AuthController{
                         const verifyUrl =`${req.protocol}://${req.get('host')}/api/v1/auth/verify/${admin_exist.account_verified.token}`;
                         mailer().sendMail({
                             to: email,
-                            from: 'fastwire.com',
+                            from: email,
                             subject: 'Verify Your Account',
                             html:'<h1>Account Verification Link.</h1> <br/><p>Please Click the link below to confirm your account. ' + verifyUrl
                     }).then( resend => {
@@ -63,7 +63,7 @@ class AuthController{
                     })
                     mailer().sendMail({
                         to: email,
-                        from: 'fastwire.com',
+                        from: email,
                         subject: 'Verify Your Account',
                         html:'<h1>Account Verification Link.</h1> <br/><p>Please Click the link below to confirm your account. ' + verifyUrl
                     }).then( sent => {
@@ -94,7 +94,10 @@ class AuthController{
             const pin_get = find_pin ? find_pin.pin : false
 
             if(!pin_get){
-                // incorrect pin
+                const err = {}
+                err.message = 'Ops, sorry incorrect pin supplied!!!'
+                err.statusCode = 400
+                return appError(err, next)
             }else{
 
                 const token = randomStr(8) + email
@@ -114,11 +117,11 @@ class AuthController{
 
                 mailer().sendMail({
                     to: email,
-                    from: 'fastwire.com',
+                    from: email,
                     subject: 'Verify Your Account',
-                    html:'<h1>Account Verification Link.</h1> <br/><p>Please Click the link below to confirm your account. ' + verifyUrl
+                    html:`<h1>Account Verification Link.</h1> <br/><p>Please Click the link below to confirm your account. ${verifyUrl}`
                 }).then( sent => {
-                    new_user.save().then( saved_user => {
+                    new_user.save().then( async saved_user => {
                         try {
                             const update_pin_details = await Pin.findOne({pin: saved_user.pin})
                             update_pin_details.owner_id = saved_user._id
@@ -129,7 +132,7 @@ class AuthController{
                                     message: `${saved_user.email} signed up successfully, please proceed to verify your account within the next 10 days`,
                                     data: null
                                 }
-                                return api_response()
+                                return api_response(api_res)
                             }).catch( err => {
                                 return appError(err, next)
                             })
