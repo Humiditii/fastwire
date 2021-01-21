@@ -29,7 +29,8 @@ class Utility {
     static generateToken(user_token_data){
         return sign({
             email:user_token_data.email,
-            userId: user_token_data.id
+            userId: user_token_data.id,
+            role: user_token_data.role
         }, process.env.SECRET,  { expiresIn: '24h' })
     }
 

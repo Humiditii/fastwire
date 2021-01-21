@@ -28,6 +28,7 @@ class CheckAuth {
         }
     
         req.userId = decodedToken.userId;
+        req.role = decodedToken.role
 
         next();
     }

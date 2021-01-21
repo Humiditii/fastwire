@@ -28,6 +28,7 @@ app.use(API_BASE_ROUTE, authRoutes)
 app.use(API_BASE_ROUTE, pinRoutes)
 
 app.use('/welcome', (req, res, next)=> {
+    console.log(req.protocol)
     return res.status(200).json({
         message: 'Welcome to fastwire api v1.0'
     })

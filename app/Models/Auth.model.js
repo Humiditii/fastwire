@@ -13,6 +13,7 @@ const authSchema = new Schema({
         required: true,
         trim: true
     },
+    business_name: String,
     email: {
         type: String,
         required: true,
@@ -32,7 +33,11 @@ const authSchema = new Schema({
     pin:{
         type: String
     },
-
+    password:{
+        type: String,
+        required: true,
+        trim: true
+    },
     account_verified: {
         is_verified: false,
         token: String

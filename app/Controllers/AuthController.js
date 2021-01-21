@@ -2,11 +2,11 @@ import Auth from '../Models/Auth.model';
 import Pin from '../Models/Pin.model';
 import Util from '../utils/Utility';
 
-const {appError, randomStr, mailer, api_response} = Util
+const {appError, randomStr, mailer, api_response, hashPassword, decodePwd, generateToken} = Util
 
 class AuthController{
     static async signup(req, res, next){
-        const {firstname, lastname, email, address, role, pin} = req.body;
+        const {firstname, lastname, email, password, address, role, pin, businessName} = req.body;
 
         if(!pin){
             // Admin authenication
@@ -20,7 +20,7 @@ class AuthController{
                         const verifyUrl =`${req.protocol}://${req.get('host')}/api/v1/auth/verify/${admin_exist.account_verified.token}`;
                         mailer().sendMail({
                             to: email,
-                            from: email,
+                            from: ['Fastwire@gmail.com'],
                             subject: 'Verify Your Account',
                             html:'<h1>Account Verification Link.</h1> <br/><p>Please Click the link below to confirm your account. ' + verifyUrl
                     }).then( resend => {
@@ -49,9 +49,11 @@ class AuthController{
                     const new_admin = new Auth({
                         firstname: firstname,
                         lastname: lastname,
+                        business_name: businessName,
                         email: email,
                         address: address,
                         role: role,
+                        password: hashPassword(password) ,
                         account_verified: {
                             token: token
                         },
@@ -63,7 +65,7 @@ class AuthController{
                     })
                     mailer().sendMail({
                         to: email,
-                        from: email,
+                        from: ['Fastwire@gmail.com'],
                         subject: 'Verify Your Account',
                         html:'<h1>Account Verification Link.</h1> <br/><p>Please Click the link below to confirm your account. ' + verifyUrl
                     }).then( sent => {
@@ -110,6 +112,7 @@ class AuthController{
                     address: address,
                     role: role,
                     pin: pin_get,
+                    password: hashPassword(password),
                     account_verified: {
                         token: token
                     }
@@ -117,7 +120,7 @@ class AuthController{
 
                 mailer().sendMail({
                     to: email,
-                    from: email,
+                    from: ['Fastwire@gmail.com'],
                     subject: 'Verify Your Account',
                     html:`<h1>Account Verification Link.</h1> <br/><p>Please Click the link below to confirm your account. ${verifyUrl}`
                 }).then( sent => {
@@ -146,6 +149,52 @@ class AuthController{
             }
              
         }
+    }
+
+    static signin(req, res, next){
+        // sign in allow: [businessName, email, pin]
+        const {password} = req.body
+        let login_with 
+        const methods = ['businessName', 'email', 'pin']
+        for (const method of methods) {
+            if(req.body.hasOwnProperty(method)){
+                login_with = method
+            }
+        }
+
+        Auth.findOne({login_with: req.body[login_with]}).then( found_ => {
+            if(!found_){
+                const err = {}
+                err.message = 'User not found, please check the detail and try again'
+                err.statusCode = 404
+                return appError(err, next)
+            }else{
+                const decode_pwd = decodePwd(password, found_.password)
+                if(!decode_pwd){
+                    const api_res = {
+                        res: res,
+                        statusCode: 400,
+                        message: `Invalid password, please check your password`,
+                        data: null
+                    }   
+                    return api_response(api_res)
+                }else{
+                    const user_token_data = {
+                        email:found_.email,
+                        id: found_._id,
+                        role: found_.role
+                    }
+                    const api_res = {
+                        res: res,
+                        statusCode: 400,
+                        message: `${found_.email} logged in`,
+                        data: generateToken(user_token_data)
+                    }   
+                    return api_response(api_res)
+                }
+            }
+        }).catch( err => appError(err, next))
+        
     }
 }
 

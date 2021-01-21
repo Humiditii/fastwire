@@ -75,6 +75,10 @@ class PinController {
             return api_response(api_res)
         }).catch( err => appError(err, next))
     }
+
+    static get_one_pin(req, res, next){
+        
+    }
 }
 
 
